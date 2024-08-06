@@ -1,34 +1,35 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useToast } from '@chakra-ui/react';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useToast } from "@chakra-ui/react";
+import { useSearchParams } from "react-router-dom";
 
-// Custom hook to fetch media items
-export const useFetchMediaItems = isWatched => {
+export const useFetchMediaItems = (isWatched) => {
   const [mediaItems, setMediaItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const toast = useToast();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/media-items/')
-      .then(response => {
-        const filteredItems = response.data.filter(
-          item => item.watched === isWatched
-        );
-        setMediaItems(filteredItems);
+    const fetchMediaItems = async () => {
+      try {
+        const params = {};
+        if (isWatched) params.watched = true;
+
+        const mediaType = searchParams.get('media_type');
+        if (mediaType) {
+          params.media_type = mediaType;
+        }
+
+        const response = await axios.get('http://localhost:8080/api/media-items/', { params });
+        setMediaItems(response.data);
+      } catch (error) {
+        console.error('Failed to fetch media items', error);
+      } finally {
         setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-        toast({
-          title: 'Error fetching media items.',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-      });
-  }, [isWatched, toast]);
+      }
+    };
+
+    fetchMediaItems();
+  }, [isWatched, searchParams]);
 
   return { mediaItems, loading };
 };
@@ -39,21 +40,21 @@ export const useAddMediaItem = () => {
 
   const addMediaItem = (formData, navigate) => {
     axios
-      .post('http://localhost:8080/api/media-items/', formData)
+      .post("http://localhost:8080/api/media-items/", formData)
       .then(response => {
         toast({
-          title: 'Media item added.',
-          status: 'success',
+          title: "Media item added.",
+          status: "success",
           duration: 3000,
           isClosable: true,
         });
-        navigate('/');
+        navigate("/");
       })
       .catch(error => {
-        console.error('Error adding media item:', error);
+        console.error("Error adding media item:", error);
         toast({
-          title: 'Error adding media item.',
-          status: 'error',
+          title: "Error adding media item.",
+          status: "error",
           duration: 3000,
           isClosable: true,
         });
@@ -75,18 +76,18 @@ export const useUpdateMediaItem = () => {
       )
       .then(response => {
         toast({
-          title: 'Media item updated.',
-          status: 'success',
+          title: "Media item updated.",
+          status: "success",
           duration: 3000,
           isClosable: true,
         });
         onSuccess(response.data);
       })
       .catch(error => {
-        console.error('Error updating media item:', error);
+        console.error("Error updating media item:", error);
         toast({
-          title: 'Error updating media item.',
-          status: 'error',
+          title: "Error updating media item.",
+          status: "error",
           duration: 3000,
           isClosable: true,
         });
