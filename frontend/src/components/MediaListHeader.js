@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const MediaListHeader = ({ isWatched }) => {
   return (
-    <Flex justifyContent="space-between" alignItems="center" mb={4}>
+    <Flex justifyContent="space-between" alignItems="center" mb={4} px={4}>
       <IconButton as={Link} to="/" icon={isWatched ? <TimeIcon /> : <FaRegEye />} />
       <Box>
         <IconButton as={Link} to={isWatched ? '/' : '/watched'} variant="outline" icon={<TimeIcon />}>
